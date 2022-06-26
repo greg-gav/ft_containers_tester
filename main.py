@@ -1,6 +1,6 @@
 import sys
 import os
-
+import re
 
 TEST_FOLDER = "./tests"
 VEC_TESTS_H = "vector_tests.hpp"
@@ -29,25 +29,27 @@ def main():
         if l.startswith("void "):
             out_file.write(l)
             add_func = True
-            func_name = l
+            func_name = re.search(r"^.* ([A-za-z_]+)\(.*$", l).group(1)
             break
     if add_func:
         cpplines = cpp_file.readlines()
         for i, l in enumerate(cpplines):
             if func_name in l:
-               process_func(cpplines, i, out_file)
+                process_func(cpplines, i, out_file)
 
 def process_func(lines, i, outfile):
-    op = 1
+    op = 0
     cl = 0
+    j = 0
     for j in range(i, len(lines)):
+        if "{" in lines[j]:
+            op += 1
         if "}" in lines[j]:
             cl += 1
         if op == cl:
             break
-        if "{" in lines[j]:
-            op += 1
-        print (f"op {op} cl {cl}")    
+    for k in range(i,j):
+        outfile.write
     
             
 
