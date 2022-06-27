@@ -250,10 +250,6 @@ void test_vector_resize(long count){
 		int ft_res = v2.size();
 		if (std_res != ft_res)
 			++err_count;
-		std_res = v1.capacity();
-		ft_res = v2.capacity();
-		if (std_res != ft_res)
-			++err_count;
 		if (!std::equal(v1.begin(),v1.end(),v2.begin()))
 			++err_count;
 	}

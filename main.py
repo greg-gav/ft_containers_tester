@@ -1,6 +1,7 @@
 import sys
 import re
 import os
+import signal
 from os import listdir
 from os.path import isfile, join
 import subprocess
@@ -35,7 +36,22 @@ def main():
     print(f"written {write_to_source_file.num} files")
 
     compile_tests(path)
+    run_tests()
 
+
+def run_tests():
+    for i in range(1, write_to_source_file.num + 1):
+        bashCommand = f"{TEMP_FOLDER}/a{i}.out"
+        print(bashCommand)
+        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+        print(output.decode("utf-8"), end="")
+        print(f"Errors: {error}")
+        if (process.returncode != 0):
+            if (process.returncode == -signal.SIGSEGV):
+                print("Segmentation fault")
+            else:
+                print(f"Return code: {process.returncode}")
 
 def compile_tests(path):
     for i in range(1, write_to_source_file.num + 1):
@@ -112,7 +128,7 @@ def get_name(h_lines, loc):
     return func_name
 
 def get_path_or_exit():
-    path = "./test_data/pack0" #test code
+    path = "./test_data/pack2" #test code
     if len(sys.argv) == 2:
         path = sys.argv[1]
     return path
