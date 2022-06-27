@@ -6,6 +6,7 @@ from os.path import isfile, join, exists
 import subprocess
 import signal
 import shutil
+from tokenize import group
 
 TEST_ITER_NUM = 1000
 TEST_FOLDER = "./tests"
@@ -48,6 +49,7 @@ def create_source_files(h_lines, cpp_lines, includes):
     print(f"generated {write_to_source_file.num} temp files")
 
 def run_tests():
+    print("Running tests:")
     for i in range(1, write_to_source_file.num + 1):
         exec_file = f"{TEMP_FOLDER}/a_{i}.out"
         if not exists(exec_file): continue
@@ -57,9 +59,20 @@ def run_tests():
         except subprocess.TimeoutExpired:
             process.kill()
             print("Test timeout, killed")
-        print(output.decode("utf-8"), end="")
+        # print(output.decode("utf-8"), end="") # native test result
+        handle_test_output(output)
         handle_proc_return(process)
 
+
+def handle_test_output(output):
+    # print(output)
+    name = get_name_from_output(output.decode("utf-8"))
+    print (name)
+
+def get_name_from_output(output):
+    m = re.search(r"^.*?\-(\w*?)\-.*?$", output)
+    name = m.group() if m else ""
+    return name
 
 def handle_proc_return(process):
     if (process.returncode != 0 and process.returncode != None):
@@ -73,7 +86,7 @@ def compile_tests(path):
     for i in range(1, write_to_source_file.num + 1):
         bashCommand =   (f"c++ {TEMP_FOLDER}/outfile_{i}.cpp {TEST_FOLDER}/test_utils.cpp"
                         f" -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a_{i}.out {FLAGS}")
-        print (f"Test {i}/{write_to_source_file.num}", end="\r", flush=True)
+        print (f"Compiling test {i}/{write_to_source_file.num}", end="\r", flush=True)
         process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
         if error != b"" and "error" in error.decode("utf-8"):
