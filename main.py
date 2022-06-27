@@ -5,15 +5,19 @@ from os import listdir
 from os.path import isfile, join, exists
 import subprocess
 import signal
+import shutil
 
 TEST_ITER_NUM = 1000
 TEST_FOLDER = "./tests"
 VEC_TESTS_H = "vector_tests.hpp"
 VEC_TESTS_CPP = "vector_tests.cpp"
 TEMP_FOLDER = "./tmp"
+LOG_FOLDER = "./log"
 FLAGS = "-Wall -Werror -Wextra -std=c++98"
 
 def main():
+    shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
+    shutil.rmtree(LOG_FOLDER, ignore_errors=True)
     path = get_path_or_exit()
 
 
@@ -31,6 +35,8 @@ def main():
     compile_tests(path)
     run_tests()
 
+    # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
+
 
 def create_source_files(h_lines, cpp_lines, includes):
     while((loc := parse_header(h_lines)) >= 0):
@@ -42,7 +48,7 @@ def create_source_files(h_lines, cpp_lines, includes):
 
 def run_tests():
     for i in range(1, write_to_source_file.num + 1):
-        exec_file = f"{TEMP_FOLDER}/a{i}.out"
+        exec_file = f"{TEMP_FOLDER}/a_{i}.out"
         if not exists(exec_file): continue
         process = subprocess.Popen(exec_file.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
@@ -64,14 +70,21 @@ def handle_proc_return(process):
 def compile_tests(path):
     print (f"Compiling tests with {FLAGS} flags")
     for i in range(1, write_to_source_file.num + 1):
-        bashCommand =   (f"c++ {TEMP_FOLDER}/outfile{i}.cpp {TEST_FOLDER}/test_utils.cpp"
-                        f" -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a{i}.out {FLAGS}")
+        bashCommand =   (f"c++ {TEMP_FOLDER}/outfile_{i}.cpp {TEST_FOLDER}/test_utils.cpp"
+                        f" -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a_{i}.out {FLAGS}")
         print (f"Test {i}/{write_to_source_file.num}", end="\r", flush=True)
         process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
-        if error != b"":
+        if error != b"" and "error" in error.decode("utf-8"):
             # print(error.decode("utf-8"))
             print(f"Test {i} compile failed, see compile log for details")
+            compile_error_log(error.decode("utf-8"), i)
+
+def compile_error_log(error, num):
+    compile_log = f"{LOG_FOLDER}/compile_error_{num}.txt"
+    os.makedirs(os.path.dirname(compile_log), exist_ok=True)
+    with open(compile_log, "w") as out_file:
+        out_file.write(error)
 
 def add_test_headers(h_lines, includes):
     for line in h_lines:
@@ -87,11 +100,10 @@ def add_extra_headers(path, includes):
 #return line number with next prototype
 def write_to_source_file(out_string):
     write_to_source_file.num += 1
-    out_name = f"{TEMP_FOLDER}/outfile{write_to_source_file.num}.cpp"
+    out_name = f"{TEMP_FOLDER}/outfile_{write_to_source_file.num}.cpp"
     os.makedirs(os.path.dirname(out_name), exist_ok=True)
-    out_file = open(out_name, "w")
-    out_file.write(out_string)
-    out_file.close()
+    with open(out_name, "w") as out_file:
+        out_file.write(out_string)
 write_to_source_file.num = 0
 
 
@@ -99,7 +111,8 @@ def build_outfile(includes, func_body, func_name):
     source  = ""
     for line in includes:
         source += line
-    source += f"extern std::string\ttest_name;\n{func_body}\nint main(){{\n\t{func_name}({TEST_ITER_NUM});\n}}"
+    source +=   (f"extern std::string\ttest_name;\n{func_body}\n"
+                f"int main(){{\n\t{func_name}({TEST_ITER_NUM});\n}}")
     return source
 
 
