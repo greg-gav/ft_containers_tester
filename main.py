@@ -1,17 +1,17 @@
 import sys
 import re
 import os
-import signal
 from os import listdir
 from os.path import isfile, join
 import subprocess
+import signal
 
-TEST_ITER_NUM = 100000
+TEST_ITER_NUM = 10000
 TEST_FOLDER = "./tests"
 VEC_TESTS_H = "vector_tests.hpp"
 VEC_TESTS_CPP = "vector_tests.cpp"
 TEMP_FOLDER = "./tmp"
-FLAGS = "-Wall -Werror -Wextra -std=c++98 -I./tests"
+FLAGS = "-Wall -Werror -Wextra -std=c++98"
 
 def main():
     path = get_path_or_exit()
@@ -56,7 +56,8 @@ def run_tests():
 
 def compile_tests(path):
     for i in range(1, write_to_source_file.num + 1):
-        bashCommand = f"c++ {TEMP_FOLDER}/outfile{i}.cpp {TEST_FOLDER}/test_utils.cpp -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a{i}.out"
+        bashCommand =   (f"c++ {TEMP_FOLDER}/outfile{i}.cpp {TEST_FOLDER}/test_utils.cpp"
+                        f" -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a{i}.out {FLAGS}")
         print(bashCommand)
         process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
         output, error = process.communicate()
