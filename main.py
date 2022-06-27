@@ -38,14 +38,18 @@ def create_source_files(h_lines, cpp_lines, includes):
         func_body: str = find_in_cpp(cpp_lines, func_name)
         out_string = build_outfile(includes, func_body, func_name)
         write_to_source_file(out_string)
-    print(f"written {write_to_source_file.num} files")
+    print(f"generated {write_to_source_file.num} temp files")
 
 def run_tests():
     for i in range(1, write_to_source_file.num + 1):
         bashCommand = f"{TEMP_FOLDER}/a{i}.out"
         print(bashCommand)
-        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
-        output, error = process.communicate()
+        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        try:
+            output, error = process.communicate(timeout=30)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            print("Test timeout, killed")
         print(output.decode("utf-8"), end="")
         print(f"Errors: {error}")
         if (process.returncode != 0):
@@ -55,11 +59,12 @@ def run_tests():
                 print(f"Return code: {process.returncode}")
 
 def compile_tests(path):
+    print (f"Compiling tests with {FLAGS} flags")
     for i in range(1, write_to_source_file.num + 1):
         bashCommand =   (f"c++ {TEMP_FOLDER}/outfile{i}.cpp {TEST_FOLDER}/test_utils.cpp"
                         f" -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a{i}.out {FLAGS}")
-        print(bashCommand)
-        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+        print (f"Test {i}/{write_to_source_file.num}", end="\r", flush=True)
+        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
 
 def add_test_headers(h_lines, includes):
