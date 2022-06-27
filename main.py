@@ -35,6 +35,7 @@ def main():
     compile_tests(path)
     run_tests()
 
+    # cleanup
     # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
 
 
@@ -83,8 +84,19 @@ def compile_tests(path):
 def compile_error_log(error, num):
     compile_log = f"{LOG_FOLDER}/compile_error_{num}.txt"
     os.makedirs(os.path.dirname(compile_log), exist_ok=True)
+    name = ""
+    with open(f"{TEMP_FOLDER}/outfile_{num}.cpp", "r") as source:
+        name = search_name_in_source(source)
     with open(compile_log, "w") as out_file:
+        out_file.write(f"{name}\n\n")
         out_file.write(error)
+
+def search_name_in_source(source):
+    lines = source.readlines()
+    for line in lines:
+        if (m := re.search(r"^.*test_name.*\"(.*)\".*$", line)):
+            return m.group(1)
+    return ""
 
 def add_test_headers(h_lines, includes):
     for line in h_lines:
