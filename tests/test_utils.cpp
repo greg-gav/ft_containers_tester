@@ -5,7 +5,7 @@ const int	    pres_num = 5;
 std::string     test_name;
 std::clock_t    start;
 double          duration;
-extern Command  comm;
+Command  comm;
 
 void handle_args(int argc, char** argv){
 	std::cout << "Usage: [pair][lex][int][vec][stack][map][set]" << std::endl;

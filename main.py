@@ -3,30 +3,29 @@ import re
 import os
 from os import listdir
 from os.path import isfile, join
+import subprocess
 
 TEST_ITER_NUM = 100000
 TEST_FOLDER = "./tests"
 VEC_TESTS_H = "vector_tests.hpp"
 VEC_TESTS_CPP = "vector_tests.cpp"
 TEMP_FOLDER = "./tmp"
-FLAGS = "-I./tests -Wall -Werror -Wextra -std=c++98"
+FLAGS = "-Wall -Werror -Wextra -std=c++98 -I./tests"
 
 def main():
     path = get_path_or_exit()
 
-    includes = []
-    add_extra_headers(path, includes)
 
     #assemble tests --> vector
     with open(f"{TEST_FOLDER}/{VEC_TESTS_H}", "r") as header_file:
         h_lines = header_file.readlines()
-
     with open(f"{TEST_FOLDER}/{VEC_TESTS_CPP}", "r") as cpp_file:
         cpp_lines = cpp_file.readlines()
 
-    for line in h_lines:
-        if line.startswith("#include"):
-            includes.append(line)
+    includes = []
+    add_test_headers(h_lines, includes)
+
+    add_extra_headers(path, includes)
     
     while((loc := parse_header(h_lines)) >= 0):
         func_name = get_name(h_lines, loc)
@@ -35,6 +34,20 @@ def main():
         write_to_source_file(out_string)
     print(f"written {write_to_source_file.num} files")
 
+    compile_tests(path)
+
+
+def compile_tests(path):
+    for i in range(1, write_to_source_file.num + 1):
+        bashCommand = f"c++ {TEMP_FOLDER}/outfile{i}.cpp {TEST_FOLDER}/test_utils.cpp -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a{i}.out"
+        print(bashCommand)
+        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE)
+        output, error = process.communicate()
+
+def add_test_headers(h_lines, includes):
+    for line in h_lines:
+        if line.lstrip().startswith("#include"):
+            includes.append(line)
 
 def add_extra_headers(path, includes):
     files_at_path = [f for f in listdir(path) if isfile(join(path, f))]
@@ -57,7 +70,7 @@ def build_outfile(includes, func_body, func_name):
     source  = ""
     for line in includes:
         source += line
-    source += f"std::string\ttest_name;\n{func_body}\nmain(){{\n\t{func_name}({TEST_ITER_NUM});\n}}"
+    source += f"extern std::string\ttest_name;\n{func_body}\nint main(){{\n\t{func_name}({TEST_ITER_NUM});\n}}"
     return source
 
 
@@ -88,7 +101,7 @@ def process_func(lines, i):
 
 def find_in_cpp(cpp_lines, func_name):
     for i, line in enumerate(cpp_lines):
-        if func_name in line:
+        if m := re.match(r"^.*" + re.escape(func_name) + r"{1}\(.*$", line):
             num_lines = process_func(cpp_lines, i)
     return num_lines
 
@@ -99,7 +112,7 @@ def get_name(h_lines, loc):
     return func_name
 
 def get_path_or_exit():
-    path = "./test_data/pack0"
+    path = "./test_data/pack0" #test code
     if len(sys.argv) == 2:
         path = sys.argv[1]
     return path
