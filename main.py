@@ -2,11 +2,11 @@ import sys
 import re
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, exists
 import subprocess
 import signal
 
-TEST_ITER_NUM = 10000
+TEST_ITER_NUM = 1000
 TEST_FOLDER = "./tests"
 VEC_TESTS_H = "vector_tests.hpp"
 VEC_TESTS_CPP = "vector_tests.cpp"
@@ -42,21 +42,24 @@ def create_source_files(h_lines, cpp_lines, includes):
 
 def run_tests():
     for i in range(1, write_to_source_file.num + 1):
-        bashCommand = f"{TEMP_FOLDER}/a{i}.out"
-        print(bashCommand)
-        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        exec_file = f"{TEMP_FOLDER}/a{i}.out"
+        if not exists(exec_file): continue
+        process = subprocess.Popen(exec_file.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             output, error = process.communicate(timeout=30)
         except subprocess.TimeoutExpired:
             process.kill()
             print("Test timeout, killed")
         print(output.decode("utf-8"), end="")
-        print(f"Errors: {error}")
-        if (process.returncode != 0):
-            if (process.returncode == -signal.SIGSEGV):
-                print("Segmentation fault")
-            else:
-                print(f"Return code: {process.returncode}")
+        handle_proc_return(process)
+
+
+def handle_proc_return(process):
+    if (process.returncode != 0 and process.returncode != None):
+        if (process.returncode == -signal.SIGSEGV):
+            print("Segmentation fault")
+        else:
+            print(f"Abnormal return code: {process.returncode}")
 
 def compile_tests(path):
     print (f"Compiling tests with {FLAGS} flags")
@@ -66,6 +69,9 @@ def compile_tests(path):
         print (f"Test {i}/{write_to_source_file.num}", end="\r", flush=True)
         process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
+        if error != b"":
+            # print(error.decode("utf-8"))
+            print(f"Test {i} compile failed, see compile log for details")
 
 def add_test_headers(h_lines, includes):
     for line in h_lines:
