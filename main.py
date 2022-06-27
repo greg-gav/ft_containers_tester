@@ -1,6 +1,8 @@
 import sys
-import os
 import re
+import os
+from os import listdir
+from os.path import isfile, join
 
 TEST_ITER_NUM = 100000
 TEST_FOLDER = "./tests"
@@ -12,6 +14,9 @@ FLAGS = "-I./tests -Wall -Werror -Wextra -std=c++98"
 def main():
     path = get_path_or_exit()
 
+    includes = []
+    add_extra_headers(path, includes)
+
     #assemble tests --> vector
     with open(f"{TEST_FOLDER}/{VEC_TESTS_H}", "r") as header_file:
         h_lines = header_file.readlines()
@@ -19,7 +24,6 @@ def main():
     with open(f"{TEST_FOLDER}/{VEC_TESTS_CPP}", "r") as cpp_file:
         cpp_lines = cpp_file.readlines()
 
-    includes = []
     for line in h_lines:
         if line.startswith("#include"):
             includes.append(line)
@@ -29,7 +33,14 @@ def main():
         func_body: str = find_in_cpp(cpp_lines, func_name)
         out_string = build_outfile(includes, func_body, func_name)
         write_to_source_file(out_string)
+    print(f"written {write_to_source_file.num} files")
 
+
+def add_extra_headers(path, includes):
+    files_at_path = [f for f in listdir(path) if isfile(join(path, f))]
+    for file in files_at_path:
+        if file.endswith(".hpp"):
+            includes.append(f'#include"{file}"\n')
 
 #return line number with next prototype
 def write_to_source_file(out_string):
@@ -38,7 +49,6 @@ def write_to_source_file(out_string):
     os.makedirs(os.path.dirname(out_name), exist_ok=True)
     out_file = open(out_name, "w")
     out_file.write(out_string)
-    print(f"written file {write_to_source_file.num}")
     out_file.close()
 write_to_source_file.num = 0
 
@@ -58,6 +68,7 @@ def parse_header(h_lines) -> int:
             return parse_header.progress
     return -1
 parse_header.progress = 0
+
 
 def process_func(lines, i):
     op = 0
@@ -88,7 +99,7 @@ def get_name(h_lines, loc):
     return func_name
 
 def get_path_or_exit():
-    path = "./"
+    path = "./test_data/pack0"
     if len(sys.argv) == 2:
         path = sys.argv[1]
     return path
