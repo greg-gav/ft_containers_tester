@@ -24,20 +24,21 @@ def main():
         cpp_lines = cpp_file.readlines()
 
     includes = []
-    add_test_headers(h_lines, includes)
 
+    add_test_headers(h_lines, includes)
     add_extra_headers(path, includes)
-    
+    create_source_files(h_lines, cpp_lines, includes)
+    compile_tests(path)
+    run_tests()
+
+
+def create_source_files(h_lines, cpp_lines, includes):
     while((loc := parse_header(h_lines)) >= 0):
         func_name = get_name(h_lines, loc)
         func_body: str = find_in_cpp(cpp_lines, func_name)
         out_string = build_outfile(includes, func_body, func_name)
         write_to_source_file(out_string)
     print(f"written {write_to_source_file.num} files")
-
-    compile_tests(path)
-    run_tests()
-
 
 def run_tests():
     for i in range(1, write_to_source_file.num + 1):
@@ -128,7 +129,7 @@ def get_name(h_lines, loc):
     return func_name
 
 def get_path_or_exit():
-    path = "./test_data/pack2" #test code
+    path = "./test_data/pack1" #test code
     if len(sys.argv) == 2:
         path = sys.argv[1]
     return path
