@@ -6,7 +6,6 @@ from os.path import isfile, join, exists
 import subprocess
 import signal
 import shutil
-from tokenize import group
 
 TEST_ITER_NUM = 1000
 TEST_FOLDER = "./tests"
@@ -50,9 +49,18 @@ def create_source_files(h_lines, cpp_lines, includes):
 
 def run_tests():
     print("Running tests:")
+    results = {}
+    print ("{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}"
+            .format('No.','Name','Compiled','Errors','Status','Perf'))
     for i in range(1, write_to_source_file.num + 1):
         exec_file = f"{TEMP_FOLDER}/a_{i}.out"
-        if not exists(exec_file): continue
+        if not exists(exec_file): 
+            name = ""
+            with open(f"{TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
+                results[i]= ["FAIL", search_name_in_source(source).strip("-"), 1, "FAIL", "None"]
+                print_test_result(results, i)
+            continue
+        results[i] = ["OK"]
         process = subprocess.Popen(exec_file.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             output, error = process.communicate(timeout=30)
@@ -60,26 +68,45 @@ def run_tests():
             process.kill()
             print("Test timeout, killed")
         # print(output.decode("utf-8"), end="") # native test result
-        handle_test_output(output)
-        handle_proc_return(process)
+        results[i].extend(handle_test_output(output))
+        results[i].append(handle_proc_return(process))
+        print_test_result(results, i)
+
+    
+
+def print_test_result(results, i):
+    print ("{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}".format(i, 
+            results[i][1], results[i][0], results[i][2], results[i][3], "x0.00"))
 
 
 def handle_test_output(output):
-    # print(output)
+    result = []
     name = get_name_from_output(output.decode("utf-8"))
-    print (name)
+    errors = get_errors_from_output(output.decode("utf-8"))
+    # print(output.decode("utf-8"))
+    result.append(name)
+    result.append(errors)
+    return result
+
+
+def get_errors_from_output(output):
+    m = re.search(r"^.*?(\d+) (?=errors).*$", output, flags=re.DOTALL)
+    number = int(m.group(1)) if m else -1
+    return number
 
 def get_name_from_output(output):
-    m = re.search(r"^.*?\-(\w*?)\-.*?$", output)
-    name = m.group() if m else ""
+    m = re.search(r"^.*?\-(.*?)\-.*$", output, flags=re.DOTALL)
+    name = m.group(1) if m else ""
     return name
 
 def handle_proc_return(process):
+    returned = "OK"
     if (process.returncode != 0 and process.returncode != None):
         if (process.returncode == -signal.SIGSEGV):
-            print("Segmentation fault")
+            returned = "SEGFAULT"
         else:
-            print(f"Abnormal return code: {process.returncode}")
+            returned = f"Abnormal return code: {process.returncode}"
+    return returned
 
 def compile_tests(path):
     print (f"Compiling tests with {FLAGS} flags")
