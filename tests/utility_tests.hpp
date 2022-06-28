@@ -1,12 +1,12 @@
 #ifndef _UTILITY_TESTS_
 #define _UTILITY_TESTS_
 
-#include "test_utils.hpp"
 #include <iostream>
 #include <utility>
 #include <vector>
 #include <algorithm>
 #include <type_traits>
+#include "test_utils.hpp"
 
 void test_enableif_integral(long count);
 void test_lexicographical_compare(long count);
