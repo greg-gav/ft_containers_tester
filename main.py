@@ -14,6 +14,10 @@ VEC_TESTS_CPP = "vector_tests.cpp"
 TEMP_FOLDER = "./tmp"
 LOG_FOLDER = "./log"
 FLAGS = "-Wall -Werror -Wextra -std=c++98"
+NC = "\x1B[0m"
+COL_RED = "\x1B[0;31m"
+COL_GRN = "\x1B[0;32m"
+COL_YEL = "\x1B[0;33m"
 
 def main():
     shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
@@ -51,13 +55,13 @@ def run_tests():
     print("Running tests:")
     results = {}
     print ("{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}"
-            .format('No.','Name','Compiled','Errors','Status','Perf'))
+            .format('No.','Name','Compiled','Errors','Exit','Perf'))
     for i in range(1, write_to_source_file.num + 1):
         exec_file = f"{TEMP_FOLDER}/a_{i}.out"
         if not exists(exec_file): 
             name = ""
             with open(f"{TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
-                results[i]= ["FAIL", search_name_in_source(source).strip("-"), 1, "FAIL", "None"]
+                results[i]= ["FAIL", search_name_in_source(source).strip("-"), -1, "NONE", "NONE"]
                 print_test_result(results, i)
             continue
         results[i] = ["OK"]
@@ -65,8 +69,7 @@ def run_tests():
         try:
             output, error = process.communicate(timeout=30)
         except subprocess.TimeoutExpired:
-            process.kill()
-            print("Test timeout, killed")
+            process.kill() #TODO: test this case
         # print(output.decode("utf-8"), end="") # native test result
         results[i].extend(handle_test_output(output))
         results[i].append(handle_proc_return(process))
@@ -74,18 +77,29 @@ def run_tests():
 
     
 
-def print_test_result(results, i):
+def print_test_result(results: dict, i):
+    p = dict(results)
+    #Compiled:
+    if p[i][0] == "FAIL": 
+        p[i][0] = "❌"
+    elif p[i][0] == "OK":
+        p[i][0] = "✅"
+    #Errors:
+    if p[i][2] == 0:
+        p[i][2] = "✅"
+    elif p[i][2] == -1:
+        p[i][2] = "🆖"
+    else:
+        p[i][2] = "❌"
     print ("{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}".format(i, 
-            results[i][1], results[i][0], results[i][2], results[i][3], "x0.00"))
+            p[i][1], p[i][0], p[i][2], p[i][3], "x0.00"))
 
 
 def handle_test_output(output):
     result = []
     name = get_name_from_output(output.decode("utf-8"))
     errors = get_errors_from_output(output.decode("utf-8"))
-    # print(output.decode("utf-8"))
-    result.append(name)
-    result.append(errors)
+    result.extend([name, errors])
     return result
 
 
@@ -103,9 +117,9 @@ def handle_proc_return(process):
     returned = "OK"
     if (process.returncode != 0 and process.returncode != None):
         if (process.returncode == -signal.SIGSEGV):
-            returned = "SEGFAULT"
+            returned = f"{COL_RED}SEGFAULT{NC}"
         else:
-            returned = f"Abnormal return code: {process.returncode}"
+            returned = f"CODE: {process.returncode}"
     return returned
 
 def compile_tests(path):
@@ -128,8 +142,7 @@ def compile_error_log(error, num):
     with open(f"{TEMP_FOLDER}/outfile_{num}.cpp", "r") as source:
         name = search_name_in_source(source)
     with open(compile_log, "w") as out_file:
-        out_file.write(f"{name}\n\n")
-        out_file.write(error)
+        out_file.write(f"{name}\n\n{error}")
 
 def search_name_in_source(source):
     lines = source.readlines()
