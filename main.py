@@ -92,16 +92,22 @@ def print_test_result(results: dict, i):
     else:
         p[i][2] = "❌"
     print ("{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}".format(i, 
-            p[i][1], p[i][0], p[i][2], p[i][3], "x0.00"))
+            p[i][1], p[i][0], p[i][2], p[i][3], p[i][4]))
 
 
 def handle_test_output(output):
     result = []
     name = get_name_from_output(output.decode("utf-8"))
     errors = get_errors_from_output(output.decode("utf-8"))
-    result.extend([name, errors])
+    perf = get_performance_from_output(output.decode("utf-8"))
+    result.extend([name, errors, perf])
     return result
 
+
+def get_performance_from_output(output):
+    m = re.search(r"^.*?(?:performance: )(.*?) .*$", output, flags=re.DOTALL)
+    perf = m.group(1) if m else "🆖"
+    return perf
 
 def get_errors_from_output(output):
     m = re.search(r"^.*?(\d+) (?=errors).*$", output, flags=re.DOTALL)
