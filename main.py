@@ -54,7 +54,7 @@ def create_source_files(h_lines, cpp_lines, includes):
 def run_tests():
     print("Running tests:")
     results = {}
-    print ("{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}"
+    print ("{:<3} {:<37} {:<10} {:<12} {:<11} {:<8}"
             .format('No.','Name','Compiled','Errors','Exit','Perf'))
     for i in range(1, write_to_source_file.num + 1):
         exec_file = f"{TEMP_FOLDER}/a_{i}.out"
@@ -91,8 +91,8 @@ def print_test_result(results: dict, i):
         p[i][2] = "🆖"
     else:
         p[i][2] = "❌"
-    print ("{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}".format(i, 
-            p[i][1], p[i][0], p[i][2], p[i][3], p[i][4]))
+    print (u"{:<3} {:<40} {:<8} {:<10} {:<10} {:<10}".format(i, 
+            p[i][1], p[i][0], p[i][2], p[i][4], p[i][3]))
 
 
 def handle_test_output(output):
@@ -106,7 +106,7 @@ def handle_test_output(output):
 
 def get_performance_from_output(output):
     m = re.search(r"^.*?(?:performance: )(.*?) .*$", output, flags=re.DOTALL)
-    perf = m.group(1) if m else "🆖"
+    perf = m.group(1) if m else "NONE"
     return perf
 
 def get_errors_from_output(output):
@@ -123,7 +123,7 @@ def handle_proc_return(process):
     returned = "OK"
     if (process.returncode != 0 and process.returncode != None):
         if (process.returncode == -signal.SIGSEGV):
-            returned = f"{COL_RED}SEGFAULT{NC}"
+            returned = f"SEGFAULT"
         else:
             returned = f"CODE: {process.returncode}"
     return returned
