@@ -5,37 +5,19 @@ from os.path import isfile, join, exists, dirname
 import subprocess
 import signal
 import shutil
+import static
 
-TEST_ITER_NUM = 1000
-TEST_FOLDER = "./tests"
-TEMP_FOLDER = "./tmp"
-LOG_FOLDER = "./log"
-VEC_TESTS_H = "vector_tests.hpp"
-VEC_TESTS_CPP = "vector_tests.cpp"
-STACK_TESTS_H = "stack_tests.hpp"
-STACK_TESTS_CPP = "stack_tests.cpp"
-MAP_TESTS_H = "map_tests.hpp"
-MAP_TESTS_CPP = "map_tests.cpp"
-SET_TESTS_H = "set_tests.hpp"
-SET_TESTS_CPP = "set_tests.cpp"
-UTILITY_TESTS_H = "utility_tests.hpp"
-UTILITY_TESTS_CPP = "utility_tests.cpp"
-FLAGS = "-Wall -Werror -Wextra -std=c++98"
-NC = "\x1B[0m"
-COL_RED = "\x1B[0;31m"
-COL_GRN = "\x1B[0;32m"
-COL_YEL = "\x1B[0;33m"
 
 def main():
-    shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
-    shutil.rmtree(LOG_FOLDER, ignore_errors=True)
+    shutil.rmtree(static.TEMP_FOLDER, ignore_errors=True)
+    shutil.rmtree(static.LOG_FOLDER, ignore_errors=True)
     path = get_path_or_exit()
 
 
     #assemble tests --> vector
-    with open(f"{TEST_FOLDER}/{VEC_TESTS_H}", "r") as header_file:
+    with open(f"{static.TEST_FOLDER}/{static.VEC_TESTS_H}", "r") as header_file:
         h_lines = header_file.readlines()
-    with open(f"{TEST_FOLDER}/{VEC_TESTS_CPP}", "r") as cpp_file:
+    with open(f"{static.TEST_FOLDER}/{static.VEC_TESTS_CPP}", "r") as cpp_file:
         cpp_lines = cpp_file.readlines()
 
     includes = []
@@ -61,22 +43,26 @@ def create_source_files(h_lines, cpp_lines, includes):
 def run_tests():
     print("Running tests:")
     results = {}
-    print ("{:<3} {:<37} {:<10} {:<12} {:<11} {:<8}"
-            .format('No.','Name','Compiled','Errors','Exit','Perf'))
+    print ("{:<3} {:<37} {:<11} {:<11} {:<11} {:<8}"
+            .format('No.','Name','Compile','Pass','Exit','Perf'))
     for i in range(1, write_to_source_file.num + 1):
-        exec_file = f"{TEMP_FOLDER}/a_{i}.out"
+        exec_file = f"{static.TEMP_FOLDER}/a_{i}.out"
         if not exists(exec_file): 
             name = ""
-            with open(f"{TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
+            with open(f"{static.TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
                 results[i]= ["FAIL", search_name_in_source(source).strip("-"), -1, "NONE", "NONE"]
                 print_test_result(results, i)
             continue
         results[i] = ["OK"]
         process = subprocess.Popen(exec_file.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
-            output, error = process.communicate(timeout=30)
+            output, error = process.communicate(timeout=static.TIMEOUT)
         except subprocess.TimeoutExpired:
             process.kill() #TODO: test this case
+            with open(f"{static.TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
+                results[i]= ["OK", search_name_in_source(source).strip("-"), 1, "NONE", "TIMEOUT"]
+                print_test_result(results, i)
+            continue
         # print(output.decode("utf-8"), end="") # native test result
         results[i].extend(handle_test_output(output))
         results[i].append(handle_proc_return(process))
@@ -136,10 +122,10 @@ def handle_proc_return(process):
     return returned
 
 def compile_tests(path):
-    print (f"Compiling tests with {FLAGS} flags")
+    print (f"Compiling tests with {static.FLAGS} flags")
     for i in range(1, write_to_source_file.num + 1):
-        bashCommand =   (f"c++ {TEMP_FOLDER}/outfile_{i}.cpp {TEST_FOLDER}/test_utils.cpp"
-                        f" -I{path} -I{TEST_FOLDER} -o {TEMP_FOLDER}/a_{i}.out {FLAGS}")
+        bashCommand =   (f"c++ {static.TEMP_FOLDER}/outfile_{i}.cpp {static.TEST_FOLDER}/test_utils.cpp"
+                        f" -I{path} -I{static.TEST_FOLDER} -o {static.TEMP_FOLDER}/a_{i}.out {static.FLAGS}")
         print (f"Compiling test {i}/{write_to_source_file.num}", end="\r", flush=True)
         process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         output, error = process.communicate()
@@ -149,10 +135,10 @@ def compile_tests(path):
             compile_error_log(error.decode("utf-8"), i)
 
 def compile_error_log(error, num):
-    compile_log = f"{LOG_FOLDER}/compile_error_{num}.txt"
+    compile_log = f"{static.LOG_FOLDER}/compile_error_{num}.txt"
     makedirs(dirname(compile_log), exist_ok=True)
     name = ""
-    with open(f"{TEMP_FOLDER}/outfile_{num}.cpp", "r") as source:
+    with open(f"{static.TEMP_FOLDER}/outfile_{num}.cpp", "r") as source:
         name = search_name_in_source(source)
     with open(compile_log, "w") as out_file:
         out_file.write(f"{name}\n\n{error}")
@@ -178,7 +164,7 @@ def add_extra_headers(path, includes):
 #return line number with next prototype
 def write_to_source_file(out_string):
     write_to_source_file.num += 1
-    out_name = f"{TEMP_FOLDER}/outfile_{write_to_source_file.num}.cpp"
+    out_name = f"{static.TEMP_FOLDER}/outfile_{write_to_source_file.num}.cpp"
     makedirs(dirname(out_name), exist_ok=True)
     with open(out_name, "w") as out_file:
         out_file.write(out_string)
@@ -190,7 +176,7 @@ def build_outfile(includes, func_body, func_name):
     for line in includes:
         source += line
     source +=   (f"extern std::string\ttest_name;\n{func_body}\n"
-                f"int main(){{\n\t{func_name}({TEST_ITER_NUM});\n}}")
+                f"int main(){{\n\t{func_name}({static.TEST_ITER_NUM});\n}}")
     return source
 
 
