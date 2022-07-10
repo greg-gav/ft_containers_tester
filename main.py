@@ -1,18 +1,25 @@
 import sys
 import re
-import os
-from os import listdir
-from os.path import isfile, join, exists
+from os import listdir, makedirs
+from os.path import isfile, join, exists, dirname
 import subprocess
 import signal
 import shutil
 
 TEST_ITER_NUM = 1000
 TEST_FOLDER = "./tests"
-VEC_TESTS_H = "vector_tests.hpp"
-VEC_TESTS_CPP = "vector_tests.cpp"
 TEMP_FOLDER = "./tmp"
 LOG_FOLDER = "./log"
+VEC_TESTS_H = "vector_tests.hpp"
+VEC_TESTS_CPP = "vector_tests.cpp"
+STACK_TESTS_H = "stack_tests.hpp"
+STACK_TESTS_CPP = "stack_tests.cpp"
+MAP_TESTS_H = "map_tests.hpp"
+MAP_TESTS_CPP = "map_tests.cpp"
+SET_TESTS_H = "set_tests.hpp"
+SET_TESTS_CPP = "set_tests.cpp"
+UTILITY_TESTS_H = "utility_tests.hpp"
+UTILITY_TESTS_CPP = "utility_tests.cpp"
 FLAGS = "-Wall -Werror -Wextra -std=c++98"
 NC = "\x1B[0m"
 COL_RED = "\x1B[0;31m"
@@ -143,7 +150,7 @@ def compile_tests(path):
 
 def compile_error_log(error, num):
     compile_log = f"{LOG_FOLDER}/compile_error_{num}.txt"
-    os.makedirs(os.path.dirname(compile_log), exist_ok=True)
+    makedirs(dirname(compile_log), exist_ok=True)
     name = ""
     with open(f"{TEMP_FOLDER}/outfile_{num}.cpp", "r") as source:
         name = search_name_in_source(source)
@@ -172,7 +179,7 @@ def add_extra_headers(path, includes):
 def write_to_source_file(out_string):
     write_to_source_file.num += 1
     out_name = f"{TEMP_FOLDER}/outfile_{write_to_source_file.num}.cpp"
-    os.makedirs(os.path.dirname(out_name), exist_ok=True)
+    makedirs(dirname(out_name), exist_ok=True)
     with open(out_name, "w") as out_file:
         out_file.write(out_string)
 write_to_source_file.num = 0
