@@ -33,10 +33,13 @@ def main():
 
 
 def create_source_files(h_lines, cpp_lines, includes):
+    extra_source = ""
+    with open(f"{static.TEST_FOLDER}/{static.EXTRA_FUNCS_CPP}", "r") as extra:
+        extra_source = extra.read()
     while((loc := parse_header(h_lines)) >= 0):
         func_name = get_name(h_lines, loc)
         func_body: str = find_in_cpp(cpp_lines, func_name)
-        out_string = build_outfile(includes, func_body, func_name)
+        out_string = build_outfile(includes, func_body, func_name, extra_source)
         write_to_source_file(out_string)
     print(f"generated {write_to_source_file.num} temp files")
 
@@ -174,14 +177,11 @@ def write_to_source_file(out_string):
 write_to_source_file.num = 0
 
 
-def build_outfile(includes, func_body, func_name):
+def build_outfile(includes, func_body, func_name, extra):
     source  = ""
     for line in includes:
         source += line
-    with open(f"{static.TEST_FOLDER}/{static.EXTRA_FUNCS_CPP}", "r") as extra:
-        for line in extra.readlines():
-            source += line
-        source += "\n"
+    source += extra
     source +=   (f"extern std::string\ttest_name;\n{func_body}\n"
                 f"int main(){{\n\t{func_name}({static.TEST_ITER_NUM});\n}}")
     return source
@@ -225,7 +225,7 @@ def get_name(h_lines, loc):
     return func_name
 
 def get_path_or_exit():
-    path = "./test_data/pack3" #test code
+    path = "./test_data/pack1" #test code
     if len(sys.argv) == 2:
         path = sys.argv[1]
     return path
