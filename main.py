@@ -48,27 +48,30 @@ def run_tests():
     for i in range(1, write_to_source_file.num + 1):
         exec_file = f"{static.TEMP_FOLDER}/a_{i}.out"
         if not exists(exec_file): 
-            name = ""
-            with open(f"{static.TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
-                results[i]= ["FAIL", search_name_in_source(source).strip("-"), -1, "NONE", "NONE"]
-                print_test_result(results, i)
+            handle_compile_error(results, i)
             continue
         results[i] = ["OK"]
         process = subprocess.Popen(exec_file.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         try:
             output, error = process.communicate(timeout=static.TIMEOUT)
         except subprocess.TimeoutExpired:
-            process.kill() #TODO: test this case
-            with open(f"{static.TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
-                results[i]= ["OK", search_name_in_source(source).strip("-"), 1, "NONE", "TIMEOUT"]
-                print_test_result(results, i)
+            process.kill()
+            handle_test_timeout(results, i)
             continue
-        # print(output.decode("utf-8"), end="") # native test result
         results[i].extend(handle_test_output(output))
         results[i].append(handle_proc_return(process))
         print_test_result(results, i)
+        # print(output.decode("utf-8"), end="") # native test result
 
-    
+def handle_test_timeout(results, i):
+    with open(f"{static.TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
+        results[i]= ["OK", search_name_in_source(source).strip("-"), -1, "NONE", "TIMEOUT"]
+        print_test_result(results, i)
+
+def handle_compile_error(results, i):
+    with open(f"{static.TEMP_FOLDER}/outfile_{i}.cpp", "r") as source:
+        results[i]= ["FAIL", search_name_in_source(source).strip("-"), -1, "NONE", "NONE"]
+        print_test_result(results, i)
 
 def print_test_result(results: dict, i):
     p = dict(results)
