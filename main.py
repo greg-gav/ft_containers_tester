@@ -178,6 +178,10 @@ def build_outfile(includes, func_body, func_name):
     source  = ""
     for line in includes:
         source += line
+    with open(f"{static.TEST_FOLDER}/{static.EXTRA_FUNCS_CPP}", "r") as extra:
+        for line in extra.readlines():
+            source += line
+        source += "\n"
     source +=   (f"extern std::string\ttest_name;\n{func_body}\n"
                 f"int main(){{\n\t{func_name}({static.TEST_ITER_NUM});\n}}")
     return source
@@ -221,7 +225,7 @@ def get_name(h_lines, loc):
     return func_name
 
 def get_path_or_exit():
-    path = "./test_data/pack0" #test code
+    path = "./test_data/pack3" #test code
     if len(sys.argv) == 2:
         path = sys.argv[1]
     return path
