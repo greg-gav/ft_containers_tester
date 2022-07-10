@@ -4,7 +4,6 @@
 #include <iostream>
 #include "test_utils.hpp"
 #include <vector>
-#include "vector.hpp"
 
 void test_vector_empty_ctor(long count);
 void test_vector_param_ctor(long count);

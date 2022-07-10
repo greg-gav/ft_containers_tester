@@ -15,9 +15,9 @@ def main():
 
 
     #assemble tests --> vector
-    with open(f"{static.TEST_FOLDER}/{static.VEC_TESTS_H}", "r") as header_file:
+    with open(f"{static.TEST_FOLDER}/{static.UTILITY_TESTS_H}", "r") as header_file:
         h_lines = header_file.readlines()
-    with open(f"{static.TEST_FOLDER}/{static.VEC_TESTS_CPP}", "r") as cpp_file:
+    with open(f"{static.TEST_FOLDER}/{static.UTILITY_TESTS_CPP}", "r") as cpp_file:
         cpp_lines = cpp_file.readlines()
 
     includes = []
@@ -162,7 +162,7 @@ def add_extra_headers(path, includes):
     files_at_path = [f for f in listdir(path) if isfile(join(path, f))]
     for file in files_at_path:
         if file.endswith(".hpp"):
-            includes.append(f'#include"{file}"\n')
+            includes.append(f'#include "{file}"\n')
 
 #return line number with next prototype
 def write_to_source_file(out_string):
@@ -221,7 +221,7 @@ def get_name(h_lines, loc):
     return func_name
 
 def get_path_or_exit():
-    path = "./test_data/pack1" #test code
+    path = "./test_data/pack0" #test code
     if len(sys.argv) == 2:
         path = sys.argv[1]
     return path

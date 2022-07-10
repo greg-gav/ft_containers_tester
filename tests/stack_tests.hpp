@@ -4,7 +4,6 @@
 #include <iostream>
 #include "test_utils.hpp"
 #include <stack>
-#include "stack.hpp"
 
 void test_stack_empty_ctor(long count);
 void test_stack_copy_ctor(long count);

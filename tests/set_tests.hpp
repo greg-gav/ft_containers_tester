@@ -2,10 +2,9 @@
 #define _SET_TESTS_
 
 #include <iostream>
-#include "test_utils.hpp"
-#include "equal_compare.hpp"
 #include <set>
-#include "set.hpp"
+#include <utility>
+#include "test_utils.hpp"
 
 void test_set_empty_ctor(long count);
 void test_set_insert_val(long count);

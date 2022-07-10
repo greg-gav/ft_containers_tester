@@ -2,10 +2,10 @@
 #define _MAP_TESTS_
 
 #include <iostream>
-#include "test_utils.hpp"
-#include "pair.hpp"
 #include <map>
-#include "map.hpp"
+#include <utility>
+#include <vector>
+#include "test_utils.hpp"
 
 void test_map_empty_ctor(long count);
 void test_map_insert_val(long count);
