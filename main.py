@@ -11,7 +11,8 @@ import static
 def main():
     shutil.rmtree(static.TEMP_FOLDER, ignore_errors=True)
     shutil.rmtree(static.LOG_FOLDER, ignore_errors=True)
-    commands = {static.COMM_ALL:[], 
+    commands = {static.COMM_ALL:[static.COMM_VEC, static.COMM_STACK, 
+                static.COMM_MAP, static.COMM_SET, static.COMM_UTIL], 
     static.COMM_VEC:[static.VEC_TESTS_H, static.VEC_TESTS_CPP], 
     static.COMM_STACK:[static.STACK_TESTS_H, static.STACK_TESTS_CPP],
     static.COMM_MAP:[static.MAP_TESTS_H, static.MAP_TESTS_CPP], 
@@ -19,9 +20,20 @@ def main():
     static.COMM_UTIL:[static.UTILITY_TESTS_H, static.UTILITY_TESTS_CPP]}
     
     path, comm = parse_arguments(commands)
-    print(f"Testing implementation in path: {path}, test mode: {comm}")
+    print(f"Testing files in path: {path}, test mode: {comm}")
 
-    #assemble tests --> vector
+    if comm == static.COMM_ALL:
+        for c in commands[static.COMM_ALL]:
+            print(f"COMM: {c}")
+            launch_tests(path, c, commands)
+    else:
+        launch_tests(path, comm, commands)
+            
+
+    # cleanup
+    # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
+    
+def launch_tests(path, comm, commands):
     with open(f"{static.TEST_FOLDER}/{commands[comm][0]}", "r") as header_file:
         h_lines = header_file.readlines()
     with open(f"{static.TEST_FOLDER}/{commands[comm][1]}", "r") as cpp_file:
@@ -34,9 +46,6 @@ def main():
     create_source_files(h_lines, cpp_lines, includes)
     compile_tests(path)
     run_tests()
-
-    # cleanup
-    # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
 
 def parse_arguments(commands):
     if (len(sys.argv) == 1):
