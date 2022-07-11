@@ -1,3 +1,4 @@
+from concurrent.futures import thread
 import sys
 import re
 from os import listdir, makedirs
@@ -6,6 +7,7 @@ import subprocess
 import signal
 import shutil
 import static
+import threading
 
 
 def main():
@@ -149,14 +151,26 @@ def handle_proc_return(process):
     return returned
 
 def compile_tests(path, comm):
-    print (f"Compiling tests with {static.FLAGS} flags")
+    print (f"Compiling tests (multithreaded)\nUsing flags: {static.FLAGS}")
+    threads = []
+    output = threading.Lock()
     for i in range(1, write_to_source_file.num + 1):
         bashCommand =   (f"c++ {static.TEMP_FOLDER}/outfile_{comm}_{i}.cpp {static.TEST_FOLDER}/test_utils.cpp"
                         f" -I{path} -I{static.TEST_FOLDER} -o {static.TEMP_FOLDER}/a_{comm}_{i}.out {static.FLAGS}")
+        thread = threading.Thread(target=compile_thread, args=(i, bashCommand, comm, output))
+        threads.append(thread)
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+def compile_thread(i, bashCommand, comm, lock):
+    with lock:
         print (f"Compiling test {i}/{write_to_source_file.num}", end="\r", flush=True)
-        process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output, error = process.communicate()
-        if error != b"" and "error" in error.decode("utf-8"):
+    process = subprocess.Popen(bashCommand.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    output, error = process.communicate()
+    if error != b"" and "error" in error.decode("utf-8"):
+        with lock:
             print(f"Test {i} compile failed, see compile log for details")
             compile_error_log(error.decode("utf-8"), i, comm)
 
