@@ -7,6 +7,11 @@ Usage:
 
 python3 main.py [ path | test_mode ]
 
+default: clone into ft_containers directory, launch
+```
+git clone https://github.com/greg-gav/ft_containers_tester && cd ft_containers_tester && python3 main.py
+```
+
 example:
 ```
 python3 main.py ~/ft_containers vec
