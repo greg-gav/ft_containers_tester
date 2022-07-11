@@ -21,10 +21,11 @@ set -> test set implementation
 util -> test utilities implementation   
 If test_mode not specified, using default mode: all (run all tests)
 
+Running
 ```
 python3 main.py 
 ```
-Equivalent to: 
+is equivalent to: 
 ```
 python3 main.py ../ all 
 ```
