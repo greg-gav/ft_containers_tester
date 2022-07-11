@@ -31,6 +31,8 @@ is equivalent to:
 python3 main.py ../ all 
 ```
 
+![run_preview](https://github.com/greg-gav/ft_containers_tester/blob/main/sample_run.gif)
+
 Folder structure:
 - Compile errors log to log/
 - Temporary cpp files and executables to tmp/
