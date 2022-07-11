@@ -40,6 +40,7 @@ Folder structure:
 
 Compile:
 - Indicates if the test compiled with your container (shouldn't be red).
+- Compile is done in multithreaded mode
 
 Pass:
 - Indicates if your container functions the same as std one (shouldn't be red).
