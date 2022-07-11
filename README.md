@@ -1,5 +1,5 @@
 # ft_containers_tester
-My Tests for ft_containers
+Tests for ft_containers
 
 ---
 Usage:
