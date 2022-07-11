@@ -30,3 +30,7 @@ is equivalent to:
 ```
 python3 main.py ../ all 
 ```
+
+Folder structure:
+- Compile errors log to log/
+- Temporary cpp files and executables to tmp/

@@ -1,7 +1,7 @@
 
 TEST_ITER_NUM = 10000
 TIMEOUT = 30
-DEFAULT_PATH = "./test_data/pack1"
+DEFAULT_PATH = "../"
 TEST_FOLDER = "./tests"
 TEMP_FOLDER = "./tmp"
 LOG_FOLDER = "./log"
