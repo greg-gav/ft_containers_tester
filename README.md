@@ -1,5 +1,5 @@
 # ft_containers_tester
-Tests for ft_containers
+Tests for ft_containers including output and performance (compared to std::) on the same tasks.
 
 ---
 Usage:
