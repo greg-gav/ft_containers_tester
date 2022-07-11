@@ -11,7 +11,7 @@ example:
 ```
 python3 main.py ~/ft_containers vec
 ```
-If path not specified, using default path: ../ (test files in parent directory)
+If path not specified, using default path: ../ (test files in parent directory)  
 Files in 'path' should be your *.hpp implementation.
 
 Available test modes: 
