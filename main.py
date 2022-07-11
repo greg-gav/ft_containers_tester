@@ -13,7 +13,7 @@ def main():
     shutil.rmtree(static.LOG_FOLDER, ignore_errors=True)
     path = get_path_or_exit()
 
-
+    # h_lines, cpp_lines = match_test_argument()
     #assemble tests --> vector
     with open(f"{static.TEST_FOLDER}/{static.UTILITY_TESTS_H}", "r") as header_file:
         h_lines = header_file.readlines()
@@ -31,6 +31,16 @@ def main():
     # cleanup
     # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
 
+
+def match_test_argument():
+    comm = "all"
+    if (len(sys.argv) == 2):
+        comm = sys.argv[1]
+    elif (len(sys.argv) == 3):
+        comm = sys.argv[2]
+
+
+    pass 
 
 def create_source_files(h_lines, cpp_lines, includes):
     extra_source = ""
