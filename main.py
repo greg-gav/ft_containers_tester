@@ -12,7 +12,7 @@ def main():
     shutil.rmtree(static.TEMP_FOLDER, ignore_errors=True)
     shutil.rmtree(static.LOG_FOLDER, ignore_errors=True)
     path, comm = parse_arguments()
-    print(f"PATH: {path}, COMM: {comm}")
+    print(f"Testing implementation in path: {path}, test mode: {comm}")
 
     #assemble tests --> vector
     with open(f"{static.TEST_FOLDER}/{static.UTILITY_TESTS_H}", "r") as header_file:
@@ -36,10 +36,18 @@ def parse_arguments():
     static.COMM_MAP, static.COMM_SET, static.COMM_UTIL]
     if (len(sys.argv) == 1):
         return (static.DEFAULT_PATH, static.COMM_ALL)
-    if (len(sys.argv) == 2):
+    elif (len(sys.argv) == 2):
         if sys.argv[1] in commands:
             return (static.DEFAULT_PATH, sys.argv[1])
         else:
+            return (sys.argv[1], static.COMM_ALL)
+    else:
+        if sys.argv[1] in commands:
+            return (sys.argv[2], sys.argv[1])
+        else:
+            for arg in sys.argv:
+                if arg in commands:
+                    return (sys.argv[1], arg)
             return (sys.argv[1], static.COMM_ALL)
 
 def create_source_files(h_lines, cpp_lines, includes):
