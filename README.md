@@ -34,3 +34,6 @@ python3 main.py ../ all
 Folder structure:
 - Compile errors log to log/
 - Temporary cpp files and executables to tmp/
+
+Performance:
+- Performance is measured relative to std library. x1 is equal, higher is better.

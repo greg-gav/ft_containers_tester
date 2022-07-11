@@ -4,6 +4,7 @@
 #include <iostream>
 #include <set>
 #include <utility>
+#include <vector>
 #include "test_utils.hpp"
 
 void test_set_empty_ctor(long count);
