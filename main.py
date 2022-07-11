@@ -68,21 +68,36 @@ def create_source_files(h_lines, cpp_lines, includes, comm):
 def run_tests(comm):
     print("Running tests:")
     results = {}
+    lock = threading.Lock()
+    current_pos = [1]
+    threads = []
     print ("{:<3} {:<37} {:<11} {:<11} {:<11} {:<8}"
             .format('No.','Name','Compile','Pass','Exit','Perf'))
     for i in range(1, write_to_source_file.num + 1):
-        exec_file = f"{static.TEMP_FOLDER}/a_{comm}_{i}.out"
-        if not exists(exec_file):
+        thread = threading.Thread(target=run_thread, args=(i, results, current_pos, comm, lock))
+        threads.append(thread)
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+
+
+def run_thread(i, results, current_pos, comm, lock):
+    exec_file = f"{static.TEMP_FOLDER}/a_{comm}_{i}.out"
+    if not exists(exec_file):
+        with lock:
             handle_compile_error(results, i, comm)
-            continue
-        results[i] = ["OK"]
-        process = subprocess.Popen(exec_file.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        try:
-            output, error = process.communicate(timeout=static.TIMEOUT)
-        except subprocess.TimeoutExpired:
-            process.kill()
+        return
+    results[i] = ["OK"]
+    process = subprocess.Popen(exec_file.split(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        output, error = process.communicate(timeout=static.TIMEOUT)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        with lock:
             handle_test_timeout(results, i, comm)
-            continue
+        return
+    with lock:
         results[i].extend(handle_test_output(output))
         results[i].append(handle_proc_return(process))
         print_test_result(results, i)
