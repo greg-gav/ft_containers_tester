@@ -21,10 +21,6 @@ def main():
             launch_tests(path, c, commands)
     else:
         launch_tests(path, comm, commands)
-            
-
-    # cleanup
-    # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
 
 def launch_tests(path, comm, commands):
     with open(f"{static.TEST_FOLDER}/{commands[comm][0]}", "r") as header_file:
