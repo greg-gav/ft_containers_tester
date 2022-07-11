@@ -11,13 +11,20 @@ import static
 def main():
     shutil.rmtree(static.TEMP_FOLDER, ignore_errors=True)
     shutil.rmtree(static.LOG_FOLDER, ignore_errors=True)
-    path, comm = parse_arguments()
+    commands = {static.COMM_ALL:[], 
+    static.COMM_VEC:[static.VEC_TESTS_H, static.VEC_TESTS_CPP], 
+    static.COMM_STACK:[static.STACK_TESTS_H, static.STACK_TESTS_CPP],
+    static.COMM_MAP:[static.MAP_TESTS_H, static.MAP_TESTS_CPP], 
+    static.COMM_SET:[static.SET_TESTS_H, static.SET_TESTS_CPP], 
+    static.COMM_UTIL:[static.UTILITY_TESTS_H, static.UTILITY_TESTS_CPP]}
+    
+    path, comm = parse_arguments(commands)
     print(f"Testing implementation in path: {path}, test mode: {comm}")
 
     #assemble tests --> vector
-    with open(f"{static.TEST_FOLDER}/{static.UTILITY_TESTS_H}", "r") as header_file:
+    with open(f"{static.TEST_FOLDER}/{commands[comm][0]}", "r") as header_file:
         h_lines = header_file.readlines()
-    with open(f"{static.TEST_FOLDER}/{static.UTILITY_TESTS_CPP}", "r") as cpp_file:
+    with open(f"{static.TEST_FOLDER}/{commands[comm][1]}", "r") as cpp_file:
         cpp_lines = cpp_file.readlines()
 
     includes = []
@@ -31,22 +38,20 @@ def main():
     # cleanup
     # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
 
-def parse_arguments():
-    commands = [static.COMM_ALL, static.COMM_VEC, static.COMM_STACK,
-    static.COMM_MAP, static.COMM_SET, static.COMM_UTIL]
+def parse_arguments(commands):
     if (len(sys.argv) == 1):
         return (static.DEFAULT_PATH, static.COMM_ALL)
     elif (len(sys.argv) == 2):
-        if sys.argv[1] in commands:
+        if sys.argv[1] in commands.keys():
             return (static.DEFAULT_PATH, sys.argv[1])
         else:
             return (sys.argv[1], static.COMM_ALL)
     else:
-        if sys.argv[1] in commands:
+        if sys.argv[1] in commands.keys():
             return (sys.argv[2], sys.argv[1])
         else:
             for arg in sys.argv:
-                if arg in commands:
+                if arg in commands.keys():
                     return (sys.argv[1], arg)
             return (sys.argv[1], static.COMM_ALL)
 
