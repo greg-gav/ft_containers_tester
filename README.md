@@ -35,5 +35,15 @@ Folder structure:
 - Compile errors log to log/
 - Temporary cpp files and executables to tmp/
 
+
+Compile:
+- Indicates if the test compiled with your container (shouldn't be red).
+
+Pass:
+- Indicates if your container functions the same as std one (shouldn't be red).
+
+Exit:
+- Indicates exit status of the test (should be "OK")
+
 Performance:
-- Performance is measured relative to std library. x1 is equal, higher is better.
+- Performance is measured relative to std library. x1 is equal, higher is better (shouldn't be red)
