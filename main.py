@@ -1,4 +1,3 @@
-from concurrent.futures import thread
 import sys
 import re
 from os import listdir, makedirs
