@@ -11,9 +11,9 @@ import static
 def main():
     shutil.rmtree(static.TEMP_FOLDER, ignore_errors=True)
     shutil.rmtree(static.LOG_FOLDER, ignore_errors=True)
-    path = get_path_or_exit()
+    path, comm = parse_arguments()
+    print(f"PATH: {path}, COMM: {comm}")
 
-    # h_lines, cpp_lines = match_test_argument()
     #assemble tests --> vector
     with open(f"{static.TEST_FOLDER}/{static.UTILITY_TESTS_H}", "r") as header_file:
         h_lines = header_file.readlines()
@@ -31,16 +31,9 @@ def main():
     # cleanup
     # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
 
-
-def match_test_argument():
-    comm = "all"
-    if (len(sys.argv) == 2):
-        comm = sys.argv[1]
-    elif (len(sys.argv) == 3):
-        comm = sys.argv[2]
-
-
-    pass 
+def parse_arguments():
+    if (len(sys.argv) == 1):
+        return (static.DEFAULT_PATH, static.COMM_ALL)
 
 def create_source_files(h_lines, cpp_lines, includes):
     extra_source = ""
@@ -234,11 +227,6 @@ def get_name(h_lines, loc):
         func_name = m.group(1)
     return func_name
 
-def get_path_or_exit():
-    path = "./test_data/pack1" #test code
-    if len(sys.argv) == 2:
-        path = sys.argv[1]
-    return path
 
 if __name__ == "__main__":
     main()

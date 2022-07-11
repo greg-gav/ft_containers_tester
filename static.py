@@ -1,6 +1,7 @@
 
 TEST_ITER_NUM = 10000
 TIMEOUT = 30
+DEFAULT_PATH = "./test_data/pack1"
 TEST_FOLDER = "./tests"
 TEMP_FOLDER = "./tmp"
 LOG_FOLDER = "./log"
@@ -16,6 +17,7 @@ UTILITY_TESTS_H = "utility_tests.hpp"
 UTILITY_TESTS_CPP = "utility_tests.cpp"
 EXTRA_FUNCS_CPP = "extra_funcs.cpp"
 FLAGS = "-Wall -Werror -Wextra -std=c++98 -Wno-unused-function"
+COMM_ALL = "all"
 NC = "\x1B[0m"
 COL_RED = "\x1B[0;31m"
 COL_GRN = "\x1B[0;32m"
