@@ -14,7 +14,7 @@ python3 main.py ~/ft_containers vec
 If path not specified, using default path: ../ (test files in parent directory)  
 Files in 'path' should be your *.hpp implementation.
 
-Available test modes: 
+Available test modes:  
 vec -> test vector implementation  
 stack -> test stack implementation  
 map -> test map implementation  
