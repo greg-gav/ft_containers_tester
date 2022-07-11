@@ -32,8 +32,15 @@ def main():
     # shutil.rmtree(TEMP_FOLDER, ignore_errors=True)
 
 def parse_arguments():
+    commands = [static.COMM_ALL, static.COMM_VEC, static.COMM_STACK,
+    static.COMM_MAP, static.COMM_SET, static.COMM_UTIL]
     if (len(sys.argv) == 1):
         return (static.DEFAULT_PATH, static.COMM_ALL)
+    if (len(sys.argv) == 2):
+        if sys.argv[1] in commands:
+            return (static.DEFAULT_PATH, sys.argv[1])
+        else:
+            return (sys.argv[1], static.COMM_ALL)
 
 def create_source_files(h_lines, cpp_lines, includes):
     extra_source = ""
@@ -165,10 +172,14 @@ def add_test_headers(h_lines, includes):
             includes.append(line)
 
 def add_extra_headers(path, includes):
-    files_at_path = [f for f in listdir(path) if isfile(join(path, f))]
-    for file in files_at_path:
-        if file.endswith(".hpp"):
-            includes.append(f'#include "{file}"\n')
+    try:
+        files_at_path = [f for f in listdir(path) if isfile(join(path, f))]
+        for file in files_at_path:
+            if file.endswith(".hpp"):
+                includes.append(f'#include "{file}"\n')
+    except FileNotFoundError:
+        print(f"Tester error: path '{path}' not valid")
+        exit(1)
 
 #return line number with next prototype
 def write_to_source_file(out_string):
