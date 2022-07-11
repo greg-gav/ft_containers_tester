@@ -28,5 +28,13 @@ COL_RED = "\x1B[0;31m"
 COL_GRN = "\x1B[0;32m"
 COL_YEL = "\x1B[0;33m"
 
+def get_all_commands():
+    return {COMM_ALL:[COMM_VEC, COMM_STACK, COMM_MAP, COMM_SET, COMM_UTIL], 
+        COMM_VEC:[VEC_TESTS_H, VEC_TESTS_CPP], 
+        COMM_STACK:[STACK_TESTS_H, STACK_TESTS_CPP],
+        COMM_MAP:[MAP_TESTS_H, MAP_TESTS_CPP], 
+        COMM_SET:[SET_TESTS_H, SET_TESTS_CPP], 
+        COMM_UTIL:[UTILITY_TESTS_H, UTILITY_TESTS_CPP]}
+
 if __name__ == "__main__":
     pass
