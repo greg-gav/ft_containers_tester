@@ -171,6 +171,8 @@ def compile_tests(path, comm):
     for i in range(1, write_to_source_file.num + 1):
         bashCommand =   (f"c++ {static.TEMP_FOLDER}/outfile_{comm}_{i}.cpp {static.TEST_FOLDER}/test_utils.cpp"
                         f" -I{path} -I{static.TEST_FOLDER} -o {static.TEMP_FOLDER}/a_{comm}_{i}.out {static.FLAGS}")
+        if comm == static.COMM_UTIL:
+            bashCommand += " -Wno-unused-function"
         thread = threading.Thread(target=compile_thread, args=(i, bashCommand, comm, output))
         threads.append(thread)
     for t in threads: t.start()
