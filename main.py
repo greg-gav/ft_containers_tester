@@ -56,8 +56,10 @@ def parse_arguments(commands):
             return (sys.argv[1], static.COMM_ALL)
 
 def create_source_files(h_lines, cpp_lines, includes, comm):
+    extra_source = "\n"
     with open(f"{static.TEST_FOLDER}/{static.EXTRA_FUNCS_CPP}", "r") as extra:
-        extra_source = extra.read()
+        if comm == static.COMM_UTIL:
+            extra_source = extra.read()
     while((loc := parse_header(h_lines)) >= 0):
         func_name = get_name(h_lines, loc)
         func_body: str = find_in_cpp(cpp_lines, func_name)
