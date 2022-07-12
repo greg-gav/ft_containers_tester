@@ -76,10 +76,8 @@ def run_tests(comm):
     for i in range(1, write_to_source_file.num + 1):
         thread = threading.Thread(target=run_thread, args=(i, results, current_pos, comm, lock))
         threads.append(thread)
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 
 def run_thread(i, results, current_pos, comm, lock):
@@ -173,10 +171,8 @@ def compile_tests(path, comm):
                         f" -I{path} -I{static.TEST_FOLDER} -o {static.TEMP_FOLDER}/a_{comm}_{i}.out {static.FLAGS}")
         thread = threading.Thread(target=compile_thread, args=(i, bashCommand, comm, output))
         threads.append(thread)
-    for t in threads:
-        t.start()
-    for t in threads:
-        t.join()
+    for t in threads: t.start()
+    for t in threads: t.join()
 
 def compile_thread(i, bashCommand, comm, lock):
     with lock:
