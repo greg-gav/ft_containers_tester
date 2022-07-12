@@ -1,6 +1,6 @@
 # ft_containers_tester
 Tests for ft_containers including output and performance (compared to std::) on the same tasks.
-
+![run_preview](https://github.com/greg-gav/ft_containers_tester/blob/main/sample_run.gif)
 ---
 Usage:
 ---
@@ -35,8 +35,6 @@ is equivalent to:
 ```
 python3 main.py ../ all 
 ```
-
-![run_preview](https://github.com/greg-gav/ft_containers_tester/blob/main/sample_run.gif)
 
 Test No. not in order running in multithreaded mode (test No's stay consistent between runs)
 
