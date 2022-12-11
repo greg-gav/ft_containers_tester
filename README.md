@@ -60,6 +60,7 @@ Performance:
 - Performance is measured relative to std library. x1 is equal, higher is better (shouldn't be red)
 
 Output comparison:
+
 🆖 means "No Grade" and can mean:
 - Test doesn't have any output to compare (not an error)
 - Output check failed due to unexpected exit code, compilation error or some other failure (something is wrong)
